@@ -1,0 +1,12 @@
+
+# configure different output dirs for eclipse and gradle
+target-dir: generated${if;${driver;eclipse};;/${driver}}
+bin: ${if;${driver;eclipse};bin;generated/${driver}/bin}
+testbin: ${if;${driver;eclipse};bin_test;generated/${driver}/bin_test}
+
+javac.source: 17
+javac.target: 17
+-noimportjava: true
+
+git-descriptor: ${system-allow-fail;git describe --dirty --always --abbrev=9}
+git-sha:        ${system-allow-fail;git rev-list -1 --no-abbrev-commit HEAD}

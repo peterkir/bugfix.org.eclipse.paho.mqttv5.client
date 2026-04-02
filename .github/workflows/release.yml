@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      SONATYPE_BEARER: ${{ secrets.SONATYPE_BEARER }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build
+        run: ./.github/scripts/ci-build.sh release
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Upload to Sonatype Central
+        if: ${{ env.SONATYPE_BEARER != '' }}
+        run: ./.github/scripts/sonatype-upload.sh
+        env:
+          SONATYPE_BEARER: ${{ secrets.SONATYPE_BEARER }}
+
+      - name: Verify deployment ID
+        if: ${{ env.SONATYPE_BEARER != '' }}
+        run: |
+          if [[ ! -f dist_DEPLOYMENTID.txt ]]; then
+            echo "Error: Deployment ID file not found after Sonatype upload" >&2
+            exit 1
+          fi
+          echo "Deployment ID: $(cat dist_DEPLOYMENTID.txt)"
+
+      - name: Upload deployment ID artifact
+        if: ${{ env.SONATYPE_BEARER != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonatype-deployment-id
+          path: dist_DEPLOYMENTID.txt
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          zip -r dist.zip dist/
+          gh release create "${{ github.ref_name }}" \
+            --generate-notes \
+            dist.zip

@@ -1,0 +1,16 @@
+# Gradle build outputs
+.gradle/
+build/
+generated/
+dist/
+bin/
+bin_test/
+
+# bnd cache
+cnf/cache/
+cnf/.gradle/
+
+# IDE files
+.idea/
+*.iml
+.DS_Store
