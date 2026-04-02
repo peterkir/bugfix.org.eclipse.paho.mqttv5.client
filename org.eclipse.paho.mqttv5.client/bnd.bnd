@@ -1,0 +1,16 @@
+-buildpath: org.eclipse.paho.mqttv5.client;version='1.2'
+
+-includeresource: @${repo;org.eclipse.paho.mqttv5.client;1.2.5;EXACT}!/!(META-INF/MANIFEST.MF)
+
+Bundle-Version: 1.2.5.99_${tstamp;yyyyMMdd-HHmmss}
+Bundle-Provider: Mercedes-Benz AG & Eclipse Foundation
+Bundle-Developers: peter@klib.io;name='Peter Kirschner';organization='Kirschners GmbH';organizationUrl='http://klib.io';roles='DevOp';timezone='Europe/Berlin'
+
+paho_package_export=1.2.6
+
+Export-Package: \
+	javax.net*;resolution:=optional,\
+	!org.eclipse.paho.mqttv5.client.internal*,\
+	org.eclipse.paho.mqttv5.client*;version="${paho_package_export}",\
+	!org.eclipse.paho.mqttv5.common.nls,\
+	org.eclipse.paho.mqttv5.common*;version="${paho_package_export}"

@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build
+        run: ./.github/scripts/ci-build.sh
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE:  ${{ secrets.GPG_PASSPHRASE }}
+          GPG_KEY_ID:      ${{ secrets.GPG_KEY_ID }}
+
+      - name: Upload to Sonatype Central
+        if: ${{ secrets.SONATYPE_BEARER != '' }}
+        run: ./.github/scripts/sonatype-upload.sh dist/m2
+        env:
+          SONATYPE_BEARER: ${{ secrets.SONATYPE_BEARER }}

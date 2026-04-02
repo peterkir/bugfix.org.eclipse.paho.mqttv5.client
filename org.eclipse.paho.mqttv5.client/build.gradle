@@ -1,0 +1,65 @@
+plugins {
+    id 'maven-publish'
+    id 'signing'
+}
+
+group   = 'io.klib.wrap'
+version = '1.2.5.99'
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenOsgi(MavenPublication) {
+            from components.java
+            groupId    = 'io.klib.wrap'
+            artifactId = 'org.eclipse.paho.mqttv5.client'
+            version    = '1.2.5.99'
+
+            pom {
+                name        = 'Eclipse Paho MQTTv5 Client OSGi Wrapper'
+                description = 'OSGi wrapper bundle for org.eclipse.paho:org.eclipse.paho.mqttv5.client:1.2.5'
+                url         = 'https://github.com/peterkir/bugfix.org.eclipse.paho.mqttv5.client'
+                licenses {
+                    license {
+                        name = 'Eclipse Public License - v 2.0'
+                        url  = 'https://www.eclipse.org/legal/epl-2.0/'
+                    }
+                }
+                developers {
+                    developer {
+                        id               = 'peterkir'
+                        name             = 'Peter Kirschner'
+                        email            = 'peter@klib.io'
+                        organization     = 'Kirschners GmbH'
+                        organizationUrl  = 'http://klib.io'
+                        timezone         = 'Europe/Berlin'
+                    }
+                }
+                scm {
+                    connection          = 'scm:git:https://github.com/peterkir/bugfix.org.eclipse.paho.mqttv5.client.git'
+                    developerConnection = 'scm:git:git@github.com:peterkir/bugfix.org.eclipse.paho.mqttv5.client.git'
+                    url                 = 'https://github.com/peterkir/bugfix.org.eclipse.paho.mqttv5.client'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'dist'
+            url  = uri("${rootDir}/dist/m2")
+        }
+    }
+}
+
+signing {
+    def hasSigningKey = project.hasProperty('signing.gnupg.keyName')
+    required { hasSigningKey }
+    if (hasSigningKey) {
+        useGpgCmd()
+        sign publishing.publications.mavenOsgi
+    }
+}
