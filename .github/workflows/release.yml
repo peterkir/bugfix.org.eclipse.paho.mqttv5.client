@@ -35,13 +35,13 @@ jobs:
           path: dist/
 
       - name: Upload to Sonatype Central
-        if: secrets.SONATYPE_BEARER != ''
+        if: ${{ secrets.SONATYPE_BEARER != '' }}
         run: ./.github/scripts/sonatype-upload.sh dist/m2
         env:
           SONATYPE_BEARER: ${{ secrets.SONATYPE_BEARER }}
 
       - name: Verify deployment ID
-        if: secrets.SONATYPE_BEARER != ''
+        if: ${{ secrets.SONATYPE_BEARER != '' }}
         run: |
           if [[ ! -f dist/m2_DEPLOYMENTID.txt ]]; then
             echo "Error: Deployment ID file not found after Sonatype upload" >&2
@@ -50,7 +50,7 @@ jobs:
           echo "Deployment ID: $(cat dist/m2_DEPLOYMENTID.txt)"
 
       - name: Upload deployment ID artifact
-        if: secrets.SONATYPE_BEARER != ''
+        if: ${{ secrets.SONATYPE_BEARER != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: sonatype-deployment-id
